@@ -165,9 +165,13 @@ taskbufresult_t read_to_taskbuf(int fd, task_t *t)
 
 	if (t->head == t->tail || headpos < tailpos)
 		amt = read(fd, &t->buf[tailpos], TASKBUFSIZ - tailpos);
-	else
+	else{
+        //make sure headpos is within size
+        if( headpos > TASKBUFSIZ){
+            return TBUF_ERROR;
+        }
 		amt = read(fd, &t->buf[tailpos], headpos - tailpos);
-
+    }
 	if (amt == -1 && (errno == EINTR || errno == EAGAIN
 			  || errno == EWOULDBLOCK))
 		return TBUF_AGAIN;
@@ -308,7 +312,7 @@ static size_t read_tracker_response(task_t *t)
 
 		// If not, read more data.  Note that the read will not block
 		// unless NO data is available.
-		int ret = read_to_taskbuf(t->peer_fd, t);
+		int ret = read_to_taskbuf(t->peer_fd, t);//caught in read_to_taskbuf() already
 		if (ret == TBUF_ERROR)
 			die("tracker read error");
 		else if (ret == TBUF_END)

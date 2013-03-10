@@ -30,7 +30,9 @@ The method we used was fork()ing so that instead of performing task_download() a
 # EXERCISE 2A: What conditions did you find and fix that would have
 #    triggered a buffer overrun bug?  (~1-3 sentences each)
 
-A buffer overrun bug which was fixed was the filename, which previously could have been too long (larger than the buffer size of FILENAMESIZ). This was fixed by only copying over FILENAMESIZ chars and adding the null byte at the end if the resulting copy did not end in a null byte.
+A buffer overrun bug which was fixed was the filename, which previously could have been too long (larger than the buffer size of FILENAMESIZ).
+Another buffer overrun bug which was patched by returning TBUF_ERROR if reading beyond the task_t's buffer in read_to_taskbuf().
+
 
 # EXERCISE 2B: What other robustness problems did you fix?  (~1-3 sentences
 #    each)
