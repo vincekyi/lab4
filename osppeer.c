@@ -476,9 +476,18 @@ task_t *start_download(task_t *tracker_task, const char *filename)
 		error("* Error while allocating task");
 		goto exit;
 	}
-	strcpy(t->filename, filename);
+	//strcpy(t->filename, filename);
+    //filename buffer overrun fix:
+    //only copy the size allocated for t->filename
+    strncpy(t->filename, filename, FILENAMESIZ);
+    //check if the filename was longer than
+    if(t->filename[FILENAMESIZ - 1] != '\0'){
+        //filename was cut short
+        //consider the chopped filename the filename
+        t->filename[FILENAMESIZ - 1] = '\0';
+    }
 
-	// add peers
+    // add peers
 	s1 = tracker_task->buf;
 	while ((s2 = memchr(s1, '\n', (tracker_task->buf + messagepos) - s1))) {
 		if (!(p = parse_peer(s1, s2 - s1)))
