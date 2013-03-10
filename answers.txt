@@ -34,6 +34,7 @@ A buffer overrun bug which was fixed was the filename, which previously could ha
 
 # EXERCISE 2B: What other robustness problems did you fix?  (~1-3 sentences
 #    each)
+A check to make sure that a peer is only able to ask for files in the current directory and not any other directories.
 
 # EXERCISE 3: Describe the attacks you implemented for "evil mode".  Why
 #    are they attacks?  (~3-10 sentences each)

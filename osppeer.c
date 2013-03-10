@@ -658,6 +658,25 @@ static void task_upload(task_t *t)
 	}
 	t->head = t->tail = 0;
 
+	//get the current working directory
+	char cur_path[PATH_MAX+1];
+	if(getcwd(cur_path, PATH_MAX+1) == NULL) {
+		error("* Current file path error");
+		goto exit;
+	}
+	//get the directory of the file
+	char file_path[PATH_MAX+1];
+	if(realpath(t->filename, file_path) == NULL) {
+		error("* File path error");
+		goto exit;	
+	}
+	//check if the directories match
+	int len = strlen(cur_path);
+	if(strncmp(file_path, cur_path, len) != 0) { //if the file is not in the current directory 
+		error("* File not in current directory error");
+		goto exit;	
+	}
+
 	t->disk_fd = open(t->filename, O_RDONLY);
 	if (t->disk_fd == -1) {
 		error("* Cannot open file %s", t->filename);
