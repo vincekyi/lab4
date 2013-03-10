@@ -30,13 +30,14 @@ The method we used was fork()ing so that instead of performing task_download() a
 # EXERCISE 2A: What conditions did you find and fix that would have
 #    triggered a buffer overrun bug?  (~1-3 sentences each)
 
-A buffer overrun bug which was fixed was the filename, which previously could have been too long (larger than the buffer size of FILENAMESIZ).
-Another buffer overrun bug which was patched by returning TBUF_ERROR if reading beyond the task_t's buffer in read_to_taskbuf().
+-A buffer overrun bug which was fixed was the filename, which previously could have been too long (larger than the buffer size of FILENAMESIZ).
+-Another buffer overrun bug which was patched by returning TBUF_ERROR if reading beyond the task_t's buffer in read_to_taskbuf().
 
 
 # EXERCISE 2B: What other robustness problems did you fix?  (~1-3 sentences
 #    each)
-A check to make sure that a peer is only able to ask for files in the current directory and not any other directories.
+-A check to make sure that a peer is only able to ask for files in the current directory and not any other directories.
+-temp fix of increasing TASKBUFSIZ to not get 'tracker connection closed prematurely!' message
 
 # EXERCISE 3: Describe the attacks you implemented for "evil mode".  Why
 #    are they attacks?  (~3-10 sentences each)
