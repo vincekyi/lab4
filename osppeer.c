@@ -519,6 +519,10 @@ static void task_download(task_t *t, task_t *tracker_task)
 	assert((!t || t->type == TASK_DOWNLOAD)
 	       && tracker_task->type == TASK_TRACKER);
 
+    //set timer
+    time_t start_time = time(NULL);
+    int data_in = 0;
+
 	// Quit if no peers, and skip this peer
 	if (!t || !t->peer_list) {
 		error("* No peers are willing to serve '%s'\n",
@@ -573,9 +577,17 @@ static void task_download(task_t *t, task_t *tracker_task)
 		if (ret == TBUF_ERROR) {
 			error("* Peer read error");
 			goto try_again;
-		} else if (ret == TBUF_END && t->head == t->tail)
+		} else if (ret == TBUF_END && t->head == t->tail){
 			/* End of file */
 			break;
+        }
+        else if(t->total_written > (10*1048576)){//prevent bigger than 5MB
+            error("Trying to download uncommonly large file.. trying agian..\n");
+            goto try_again;
+        }
+        else if(1){//check for unreasonably slow data rate
+
+        }
 
 		ret = write_from_taskbuf(t->disk_fd, t);
 		if (ret == TBUF_ERROR) {
