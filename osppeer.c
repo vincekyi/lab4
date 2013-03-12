@@ -508,20 +508,32 @@ task_t *start_download(task_t *tracker_task, const char *filename)
 }
 
 
+
 // task_download(t, tracker_task)
 //	Downloads the file specified by the input task 't' into the current
 //	directory.  't' was created by start_download().
 //	Starts with the first peer on 't's peer list, then tries all peers
 //	until a download is successful.
-static void task_download(task_t *t, task_t *tracker_task)
+static void task_download_r(task_t *t, task_t *tracker_task, int iter);
+static void task_download(task_t *t, task_t *tracker_task){
+    task_download_r(t, tracker_task, 0);
+    return;
+}
+
+static void task_download_r(task_t *t, task_t *tracker_task, int iter)
 {
+
+    if(iter > 20 /*times to try before giving up*/){
+        error("Tried to download unsuccessfully too many times.. quitting..\n");
+        return;
+    }
 	int i, ret = -1;
 	assert((!t || t->type == TASK_DOWNLOAD)
 	       && tracker_task->type == TASK_TRACKER);
 
     //set timer
     time_t start_time = time(NULL);
-    int data_in = 0;
+    size_t data_in = 0;
 
 	// Quit if no peers, and skip this peer
 	if (!t || !t->peer_list) {
@@ -581,12 +593,9 @@ static void task_download(task_t *t, task_t *tracker_task)
 			/* End of file */
 			break;
         }
-        else if(t->total_written > (10*1048576)){//prevent bigger than 5MB
+        else if(t->total_written > (10*1048576)){//prevent bigger than 10MB
             error("Trying to download uncommonly large file.. trying agian..\n");
             goto try_again;
-        }
-        else if(1){//check for unreasonably slow data rate
-
         }
 
 		ret = write_from_taskbuf(t->disk_fd, t);
@@ -594,6 +603,15 @@ static void task_download(task_t *t, task_t *tracker_task)
 			error("* Disk write error");
 			goto try_again;
 		}
+        else if(time(NULL) > (start_time + 3)){//check for unreasonably slow data rate
+            if(((t->total_written - data_in) / (time(NULL) - start_time)) < 10 /*Bytes per sec*/){
+                error("Unusually slow... trying agian..\n");
+                goto try_again;
+            }
+            start_time = time(NULL);
+            data_in = t->total_written;
+        }
+
 	}
 
 	// Empty files are usually a symptom of some error.
@@ -617,7 +635,7 @@ static void task_download(task_t *t, task_t *tracker_task)
 		unlink(t->disk_filename);
 	// recursive call
 	task_pop_peer(t);
-	task_download(t, tracker_task);
+	task_download_r(t, tracker_task, 1+iter);
 }
 
 
