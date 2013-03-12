@@ -37,6 +37,8 @@ static int listen_port;
 
 #define TASKBUFSIZ	32768//4096	// Size of task_t::buf
 #define FILENAMESIZ	256	// Size of task_t::filename
+#define MIN_DATARATE 10 //bytes per sec
+#define MAX_DL_ATTEMPTS 20 
 
 typedef enum tasktype {		// Which type of connection is this?
 	TASK_TRACKER,		// => Tracker connection
@@ -523,7 +525,7 @@ static void task_download(task_t *t, task_t *tracker_task){
 static void task_download_r(task_t *t, task_t *tracker_task, int iter)
 {
 
-    if(iter > 20 /*times to try before giving up*/){
+    if(iter > MAX_DL_ATTEMPTS /*times to try before giving up*/){
         error("Tried to download unsuccessfully too many times.. quitting..\n");
         return;
     }
@@ -604,7 +606,7 @@ static void task_download_r(task_t *t, task_t *tracker_task, int iter)
 			goto try_again;
 		}
         else if(time(NULL) > (start_time + 3)){//check for unreasonably slow data rate
-            if(((t->total_written - data_in) / (time(NULL) - start_time)) < 10 /*Bytes per sec*/){
+            if(((t->total_written - data_in) / (time(NULL) - start_time)) < MIN_DATARATE){
                 error("Unusually slow... trying agian..\n");
                 goto try_again;
             }

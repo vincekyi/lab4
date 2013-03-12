@@ -38,8 +38,8 @@ The method we used was fork()ing so that instead of performing task_download() a
 #    each)
 -A check to make sure that a peer is only able to ask for files in the current directory and not any other directories.
 -temp fix of increasing TASKBUFSIZ to not get 'tracker connection closed prematurely!' message
--limited the task_download() recursive call to only try downloading from a certain number of seeders so it doesnt waste time trying too long trying to find a peer.
--Added a check to see how slow the seeder is.. if it is too slow, then re try.
+-limited the task_download() recursive call to only try downloading from a certain number of seeders (MAX_DL_ATTEMPTS) so it doesnt waste time trying too long trying to find a peer.
+-Added a check to see how slow the seeder is.. if it is too slow (slower than MIN_DATARATE), then re try.
 
 # EXERCISE 3: Describe the attacks you implemented for "evil mode".  Why
 #    are they attacks?  (~3-10 sentences each)
