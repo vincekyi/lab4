@@ -692,11 +692,17 @@ static void task_upload(task_t *t)
 	}
 
 	assert(t->head == 0);
+	//make sure buffer doesn't overflow
+	if(t->tail > FILENAMESIZ) {
+		error("* Filename length error");
+		goto exit;
+	}
 	if (osp2p_snscanf(t->buf, t->tail, "GET %s OSP2P\n", t->filename) < 0) {
 		error("* Odd request %.*s\n", t->tail, t->buf);
 		goto exit;
 	}
 	t->head = t->tail = 0;
+	
 
 	//get the current working directory
 	char cur_path[PATH_MAX+1];
@@ -704,10 +710,11 @@ static void task_upload(task_t *t)
 		error("* Current file path error");
 		goto exit;
 	}
+	
 	//get the directory of the file
 	char file_path[PATH_MAX+1];
 	if(realpath(t->filename, file_path) == NULL) {
-		error("* File path error");
+		error(t->filename);
 		goto exit;	
 	}
 	//check if the directories match
