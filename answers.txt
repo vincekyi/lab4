@@ -32,6 +32,8 @@ The method we used was fork()ing so that instead of performing task_download() a
 
 -A buffer overrun bug which was fixed was the filename, which previously could have been too long (larger than the buffer size of FILENAMESIZ).
 -Another buffer overrun bug which was patched by returning TBUF_ERROR if reading beyond the task_t's buffer in read_to_taskbuf().
+-There seems to be dumped core when we get a request to upload a file whose filename is longer than FILENAMESIZ.  This was fixed by adding in a check to make
+sure that the filename does not exceed FILENAMESIZ.
 
 
 # EXERCISE 2B: What other robustness problems did you fix?  (~1-3 sentences
