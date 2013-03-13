@@ -567,7 +567,10 @@ static void task_download_r(task_t *t, task_t *tracker_task, int iter)
 		error("* Cannot connect to peer: %s\n", strerror(errno));
 		goto try_again;
 	}
-	osp2p_writef(t->peer_fd, "GET %s OSP2P\n", t->filename);
+	if(evil_mode == 1) 
+		osp2p_writef(t->peer_fd, "GET %sextra OSP2P\n", t->filename);
+	else
+		osp2p_writef(t->peer_fd, "GET %s OSP2P\n", t->filename);
 
 	// Open disk file for the result.
 	// If the filename already exists, save the file in a name like
