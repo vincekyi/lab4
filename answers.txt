@@ -47,7 +47,7 @@ sure that the filename does not exceed FILENAMESIZ.
 # EXERCISE 3: Describe the attacks you implemented for "evil mode".  Why
 #    are they attacks?  (~3-10 sentences each)
 -evil_mode 1
-This requests a file download in which the filename size is 255, which is the filenamesize limit (excluding zero byte).  This is an attack because
+This requests a file download in which the filename is above the file size limit, 256.  This is an attack because
 when a peer processes this request, they'll get an error when trying to find the file due to this overloaded filename.
 
 -evil_mode 2

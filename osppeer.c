@@ -42,7 +42,7 @@ static int listen_port;
 #define MIN_DATARATE 10 
 //bytes per sec
 #define MAX_DL_ATTEMPTS 20 
-#define MAX_FILE_SIZE 10*1048576
+#define MAX_FILE_SIZE 2*1073741824
 
 typedef enum tasktype {		// Which type of connection is this?
 	TASK_TRACKER,		// => Tracker connection
@@ -609,7 +609,7 @@ static void task_download_r(task_t *t, task_t *tracker_task, int iter)
 			/* End of file */
 			break;
         }
-        else if(t->total_written > (MAX_FILE_SIZE)){//prevent bigger than 10MB
+        else if((unsigned long)t->total_written > ((unsigned long)MAX_FILE_SIZE)){//prevent bigger than 2GB
             error("Trying to download uncommonly large file.. trying agian..\n");
             goto try_again;
         }
